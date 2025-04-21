@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Medicação</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #e0f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header {
+      background-color: #00796b;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+    }
+    .container {
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+    }
+    h2 {
+      color: #004d40;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #00796b;
+      color: white;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #b2dfdb;
+    }
+    .btn-edit, .btn-remove {
+      background-color: #00796b;
+      color: white;
+      margin: 2px;
+    }
+    .btn-remove {
+      background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Controle de Medicação para Idosos</h1>
+  </header>
+  <div class="container">
+    <h2>Adicionar Medicação</h2>
+    <input type="text" id="nome" placeholder="Nome do remédio">
+    <input type="time" id="horario">
+    <input type="text" id="finalidade" placeholder="Finalidade do remédio">
+    <button onclick="adicionarMedicacao()">Adicionar</button>
+
+    <h2>Lista de Medicações</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Remédio</th>
+          <th>Horário</th>
+          <th>Finalidade</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaMedicacoes"></tbody>
+    </table>
+  </div>
+
+  <audio id="alarme" src="https://www.soundjay.com/phone/telephone-ring-01a.mp3" preload="auto"></audio>
+
+  <script>
+    const medicacoes = [];
+
+    function adicionarMedicacao() {
+      const nome = document.getElementById('nome').value;
+      const horario = document.getElementById('horario').value;
+      const finalidade = document.getElementById('finalidade').value;
+
+      if (nome && horario && finalidade) {
+        medicacoes.push({ nome, horario, finalidade });
+        atualizarTabela();
+        document.getElementById('nome').value = '';
+        document.getElementById('horario').value = '';
+        document.getElementById('finalidade').value = '';
+      } else {
+        alert('Preencha todos os campos!');
+      }
+    }
+
+    function atualizarTabela() {
+      const tabela = document.getElementById('tabelaMedicacoes');
+      tabela.innerHTML = '';
+      medicacoes.forEach((med, index) => {
+        const linha = `<tr>
+          <td>${med.nome}</td>
+          <td>${med.horario}</td>
+          <td>${med.finalidade}</td>
+          <td>
+            <button class="btn-edit" onclick="editar(${index})">Editar</button>
+            <button class="btn-remove" onclick="remover(${index})">Remover</button>
+          </td>
+        </tr>`;
+        tabela.innerHTML += linha;
+      });
+    }
+
+    function editar(index) {
+      const novoNome = prompt('Novo nome:', medicacoes[index].nome);
+      const novoHorario = prompt('Novo horário:', medicacoes[index].horario);
+      const novaFinalidade = prompt('Nova finalidade:', medicacoes[index].finalidade);
+      if (novoNome && novoHorario && novaFinalidade) {
+        medicacoes[index] = {
+          nome: novoNome,
+          horario: novoHorario,
+          finalidade: novaFinalidade
+        };
+        atualizarTabela();
+      }
+    }
+
+    function remover(index) {
+      if (confirm('Deseja realmente remover esta medicação?')) {
+        medicacoes.splice(index, 1);
+        atualizarTabela();
+      }
+    }
+
+    function verificarHorarios() {
+      const agora = new Date();
+      const horaAtual = agora.toTimeString().slice(0, 5);
+      medicacoes.forEach(med => {
+        if (med.horario === horaAtual) {
+          document.getElementById('alarme').play();
+          alert(`Hora de tomar: ${med.nome}\nFinalidade: ${med.finalidade}`);
+        }
+      });
+    }
+
+    setInterval(verificarHorarios, 60000);
+  </script>
+</body>
+</html>
